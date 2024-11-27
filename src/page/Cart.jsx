@@ -9,11 +9,14 @@ function Cart() {
   const dispatch = useDispatch();
   const { items, status, error } = useSelector((state) => state.cart);
 
-  console.log("item", items);
   const handleUpdateQuantity = (id, newQuantity) => {
     dispatch(updateCartItem({ id, quantity: newQuantity }));
+    console.log("changed");
   };
 
+  console.log("after handleupdate quantity", items);
+
+  //dispatch(cartFetchData());
   useEffect(() => {
     dispatch(cartFetchData());
   }, [dispatch]);
@@ -22,6 +25,11 @@ function Cart() {
     return <div>Loading</div>;
   } else if (status == "failed") {
     return <div>Failed</div>;
+  }
+
+  var to = 0;
+  for (var i of items) {
+    to += i.product.price * i.quantity;
   }
 
   return (
@@ -126,8 +134,8 @@ function Cart() {
         </div>
 
         <div className="border-2 p-4">
-          <p className="font-semibold">Total</p>
-          <p>$total_price</p>
+          <p className="font-semibold">Total price of all</p>
+          <p>{to}</p>
         </div>
       </div>
     </div>

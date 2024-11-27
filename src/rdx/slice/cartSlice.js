@@ -59,6 +59,7 @@ export const updateCartItem = createAsyncThunk(
           },
         },
       );
+      console.log("update cart item", response.data);
       return response.data;
     } catch (error) {
       console.error("update error", error);
