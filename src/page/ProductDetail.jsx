@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import DOMPurify from "dompurify";
 import Button from "@mui/material/Button";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import { Typography } from "@mui/material";
 import axios from "axios";
+import { addToCart } from "../rdx/slice/cartSlice";
+
 const ProductDetail = () => {
+  const dispatch = useDispatch();
   const [detail, setDetail] = useState(null);
   const [color, setColor] = useState(null);
   const [size, setSize] = useState(null);
@@ -35,6 +39,7 @@ const ProductDetail = () => {
 
   //stockvalue to store in state
   const [stockValue, setStockValue] = useState(1);
+
   const MinusFunction = () => {
     if (stockValue > 0) {
       setStockValue(stockValue - 1);
@@ -46,11 +51,25 @@ const ProductDetail = () => {
     }
   };
 
-  //fetch productdetail
-
-  //add to cart with certain condition
-  const addtoCart = () => {};
-
+  //add to card operation
+  const handleAddToCart = () => {
+    const cartItem = {
+      product: detail.id,
+      quantity: stockValue,
+      color: color,
+      size: size,
+    };
+    //dispatch(addToCart(cartItem));
+    if (detail.product_color.length > 0 && color === null) {
+      alert("please select a color");
+      return;
+    }
+    if (detail.product_size.length > 0 && size === null) {
+      alert("please select a size");
+      return;
+    }
+    dispatch(addToCart(cartItem));
+  };
   if (!detail) {
     return <div>Loading...</div>;
   }
@@ -62,8 +81,6 @@ const ProductDetail = () => {
           <div className="border-2">
             <div className="okay">
               <Typography variant="h4">{detail.title}</Typography>
-
-              {/* <p>{detail.category}</p> */}
               {detail.category.name}
               <p>stock: {detail.stock}</p>
               {detail.stock > 0 ? <p>In stock</p> : <p>Out of stock</p>}
@@ -71,8 +88,6 @@ const ProductDetail = () => {
             </div>
             <div className="flex">
               {detail.product_color.map((col) => (
-                // <Typography variant="p">{col.color}</Typography>
-                // <Typography>{col.color}</Typography>;
                 <div
                   className={`border px-1 mx-1 cursor-pointer ${color === col.color ? "bg-green-500" : "bg-none"}`}
                   key={col.id}
@@ -123,7 +138,11 @@ const ProductDetail = () => {
               <Button size="small" onClick={PlusFunction}>
                 <FaPlus />
               </Button>
-              <Button variant="contained" size="small" onClick={addtoCart}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleAddToCart}
+              >
                 Add to cart
               </Button>
             </div>

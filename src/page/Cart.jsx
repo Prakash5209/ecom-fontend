@@ -9,6 +9,7 @@ function Cart() {
   const dispatch = useDispatch();
   const { items, status, error } = useSelector((state) => state.cart);
 
+  console.log("item", items);
   const handleUpdateQuantity = (id, newQuantity) => {
     dispatch(updateCartItem({ id, quantity: newQuantity }));
   };
