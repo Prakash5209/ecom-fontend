@@ -9,6 +9,7 @@ import Navbar from "./page/Navbar.jsx";
 import Home from "./page/Home.jsx";
 import Product from "./page/Product.jsx";
 import ProductDetail from "./page/ProductDetail.jsx";
+import CheckOut from "./page/CheckOut.jsx";
 import Login from "./page/Login.jsx";
 import Cart from "./page/Cart.jsx";
 import { Outlet } from "react-router-dom"; // Import Outlet for nested routing
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="P/:slug" element={<ProductDetail />} />
         <Route path="cart" element={<Cart />} />
         <Route path="login" element={<Login />} />
+        <Route path="checkout" element={<CheckOut />} />
       </Route>,
     ),
   );

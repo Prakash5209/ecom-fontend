@@ -1,20 +1,62 @@
 import { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import { useNavigate } from "react-router-dom";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import { useSelector, useDispatch } from "react-redux";
-import { cartFetchData, updateCartItem } from "../rdx/slice/cartSlice";
+import {
+  cartFetchData,
+  updateCartItem,
+  deleteCartItem,
+} from "../rdx/slice/cartSlice";
 import axios from "axios";
 
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
+
 function Cart() {
+  // modal to confirm to remove cartitem from database
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  //navigate to checkout page
+  const navigate = useNavigate();
+  const gotoNavigate = () => {
+    navigate("/checkout/");
+  };
+
   const dispatch = useDispatch();
   const { items, status, error } = useSelector((state) => state.cart);
+  console.log("cart items", items);
 
-  const handleUpdateQuantity = (id, newQuantity) => {
-    dispatch(updateCartItem({ id, quantity: newQuantity }));
+  const handleUpdateQuantity = (id, newQuantity, operation) => {
+    dispatch(
+      updateCartItem({
+        id,
+        quantity: newQuantity,
+        operation_status: operation,
+      }),
+    );
     console.log("changed");
   };
 
-  console.log("after handleupdate quantity", items);
+  const removecartitem = (id) => {
+    dispatch(deleteCartItem({ id }));
+    console.log("delete cart item triggered");
+  };
 
   //dispatch(cartFetchData());
   useEffect(() => {
@@ -36,7 +78,7 @@ function Cart() {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3">
         <div className="border-2 md:col-span-2">
-          <div className="grid grid-cols-5 gap-4 p-4 border-b items-center">
+          <div className="grid grid-cols-6 gap-4 p-4 border-b items-center">
             <div>
               <p>Image</p>
             </div>
@@ -76,7 +118,7 @@ function Cart() {
           {items?.map((item) => (
             <div
               key={item.id}
-              className="grid grid-cols-5 gap-4 p-4 border-b items-center"
+              className="grid grid-cols-6 gap-4 p-4 border-b items-center"
             >
               <div>
                 <img
@@ -105,7 +147,7 @@ function Cart() {
                   size="small"
                   className="w-1"
                   onClick={() =>
-                    handleUpdateQuantity(item.id, item.quantity + 1)
+                    handleUpdateQuantity(item.id, item.quantity + 1, "addition")
                   }
                 >
                   <FaPlus />
@@ -118,7 +160,7 @@ function Cart() {
                   size="small"
                   className="w-1"
                   onClick={() =>
-                    handleUpdateQuantity(item.id, item.quantity - 1)
+                    handleUpdateQuantity(item.id, item.quantity - 1, "subtract")
                   }
                 >
                   <FaMinus />
@@ -129,6 +171,50 @@ function Cart() {
               <div>
                 <p>{item.product.price * item.quantity}</p>
               </div>
+
+              <div>
+                <Button onClick={handleOpen}>
+                  <HighlightOffIcon />
+                </Button>
+                <Modal
+                  open={open}
+                  onClose={handleClose}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                >
+                  <Box sx={style}>
+                    <Typography
+                      id="modal-modal-title"
+                      variant="h6"
+                      component="h2"
+                    >
+                      Text in a modal
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                      Are you sure you want to delete this cart item.
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => {
+                          removecartitem(item.id);
+                          handleClose();
+                        }}
+                      >
+                        yes
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="error"
+                        onClick={handleClose}
+                      >
+                        no
+                      </Button>
+                    </Typography>
+                  </Box>
+                </Modal>
+                {/*<HighlightOffIcon onClick={() => removecartitem(item.id)} />*/}
+              </div>
             </div>
           ))}
         </div>
@@ -136,6 +222,9 @@ function Cart() {
         <div className="border-2 p-4">
           <p className="font-semibold">Total price of all</p>
           <p>{to}</p>
+          <Button variant="outlined" color="error" onClick={gotoNavigate}>
+            Checkout
+          </Button>
         </div>
       </div>
     </div>
