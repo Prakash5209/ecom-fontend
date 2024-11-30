@@ -32,6 +32,9 @@ function Cart() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // remove item object id state
+  const [removeid, setRemoveid] = useState(null);
+
   //navigate to checkout page
   const navigate = useNavigate();
   const gotoNavigate = () => {
@@ -173,7 +176,12 @@ function Cart() {
               </div>
 
               <div>
-                <Button onClick={handleOpen}>
+                <Button
+                  onClick={() => {
+                    handleOpen();
+                    setRemoveid(item.id);
+                  }}
+                >
                   <HighlightOffIcon />
                 </Button>
                 <Modal
@@ -196,7 +204,7 @@ function Cart() {
                         size="small"
                         variant="outlined"
                         onClick={() => {
-                          removecartitem(item.id);
+                          removecartitem(removeid);
                           handleClose();
                         }}
                       >
