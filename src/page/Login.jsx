@@ -21,7 +21,7 @@ function Login() {
     axios
       .post("http://localhost:8000/account/api/token/", { username, password })
       .then((res) => {
-        localStorage.setItem("sown_access", res.data.access);
+        sessionStorage.setItem("sown_access", res.data.access);
         alert("Logged in successfully");
         window.location.href = "/";
       })

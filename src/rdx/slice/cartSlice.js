@@ -8,7 +8,7 @@ export const cartFetchData = createAsyncThunk(
     try {
       const response = await axios.get("http://localhost:8000/cart/api/list/", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("sown_access")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("sown_access")}`,
         },
       });
       return response.data.results;
@@ -28,7 +28,7 @@ export const addToCart = createAsyncThunk(
         itemData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("sown_access")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("sown_access")}`,
           },
         },
       );
@@ -55,7 +55,7 @@ export const updateCartItem = createAsyncThunk(
         { quantity, operation_status },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("sown_access")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("sown_access")}`,
           },
         },
       );
@@ -75,7 +75,7 @@ export const deleteCartItem = createAsyncThunk(
       `http://localhost:8000/cart/api/cart-operation/${id}/`,
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("sown_access")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("sown_access")}`,
         },
       },
     );

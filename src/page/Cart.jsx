@@ -34,7 +34,7 @@ function Cart() {
         `http://localhost:8000/checkout/api/khalti-verify?status=${JSON.stringify({ query: queryParams })}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("sown_access")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("sown_access")}`,
           },
         },
       );
