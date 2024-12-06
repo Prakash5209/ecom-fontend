@@ -1,5 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+// Root Component for Categories Menu
+function CategoriesMenu({ categories }) {
+  return (
+    <ul className="flex flex-wrap h-full gap-4">
+      {categories.map((category) => (
+        <CategoryDropdown key={category.id} category={category} />
+      ))}
+    </ul>
+  );
+}
+
+export default CategoriesMenu;
+
 // Recursive Dropdown Component
 function CategoryDropdown({ category }) {
   const navigate = useNavigate();
@@ -29,22 +43,9 @@ function CategoryDropdown({ category }) {
           onClick={() => categoryProduct(category)}
           className="cursor-pointer"
         >
-          {category.name}
+          <p className="text-base">{category.name}</p>
         </span>
       )}
     </li>
   );
 }
-
-// Root Component for Categories Menugg
-function CategoriesMenu({ categories }) {
-  return (
-    <ul className="flex flex-wrap h-full gap-4">
-      {categories.map((category) => (
-        <CategoryDropdown key={category.id} category={category} />
-      ))}
-    </ul>
-  );
-}
-
-export default CategoriesMenu;

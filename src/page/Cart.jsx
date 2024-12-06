@@ -1,49 +1,63 @@
 import { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import { useNavigate } from "react-router-dom";
-import { FaPlus, FaMinus } from "react-icons/fa6";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import {
+  Trash2,
+  Plus,
+  Minus,
+  Info,
+  ShoppingCart,
+  Tag,
+  Truck,
+} from "lucide-react";
 import {
   cartFetchData,
   updateCartItem,
   deleteCartItem,
 } from "../rdx/slice/cartSlice";
-import axios from "axios";
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
 
 function Cart() {
-  // modal to confirm to remove cartitem from database
+  // callback request from khalti start
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const queryParams = {};
+  searchParams.forEach((value, key) => {
+    queryParams[key] = value;
+  });
+  console.log("query", queryParams);
+
+  useEffect(() => {
+    const khaltiPaymentVerify = async () => {
+      const response = await axios.get(
+        `http://localhost:8000/checkout/api/khalti-verify?status=${JSON.stringify({ query: queryParams })}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("sown_access")}`,
+          },
+        },
+      );
+    };
+    khaltiPaymentVerify();
+  }, []);
+
+  //callback request from khalti end
+
   const [open, setOpen] = useState(false);
+  const [removeid, setRemoveid] = useState(null);
+  const [activeInfoTab, setActiveInfoTab] = useState("shipping");
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { items, status, error } = useSelector((state) => state.cart);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  // remove item object id state
-  const [removeid, setRemoveid] = useState(null);
-
-  //navigate to checkout page
-  const navigate = useNavigate();
   const gotoNavigate = () => {
     navigate("/checkout/");
   };
-
-  const dispatch = useDispatch();
-  const { items, status, error } = useSelector((state) => state.cart);
-  console.log("cart items", items);
 
   const handleUpdateQuantity = (id, newQuantity, operation) => {
     dispatch(
@@ -53,188 +67,271 @@ function Cart() {
         operation_status: operation,
       }),
     );
-    console.log("changed");
   };
 
   const removecartitem = (id) => {
     dispatch(deleteCartItem({ id }));
-    console.log("delete cart item triggered");
   };
 
-  //dispatch(cartFetchData());
   useEffect(() => {
     dispatch(cartFetchData());
   }, [dispatch]);
 
-  if (status == "loading") {
-    return <div>Loading</div>;
-  } else if (status == "failed") {
-    return <div>Failed</div>;
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-2xl text-gray-600 bg-gray-100">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
   }
 
-  var to = 0;
-  for (var i of items) {
-    to += i.product.price * i.quantity;
+  if (status === "failed") {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-2xl text-red-500 bg-red-50">
+        Failed to load cart
+      </div>
+    );
   }
 
-  return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-3">
-        <div className="border-2 md:col-span-2">
-          <div className="grid grid-cols-6 gap-4 p-4 border-b items-center">
-            <div>
-              <p>Image</p>
-            </div>
-            <div className="">
-              {/*<p>Title</p>
-              <p>Color</p>
-              <p>Size</p>
-              */}
-              <p>Product Detail</p>
-            </div>
+  const totalPrice = items.reduce(
+    (total, item) => total + item.product.price * item.quantity,
+    0,
+  );
 
-            {/* Price Column */}
-            <div>
-              <p>Price</p>
-            </div>
-
-            {/* Quantity Column */}
-            <div>
-              <p>Quantity</p>
-            </div>
-
-            {/* Total Price Column */}
-            <div>
-              <p>Total</p>
+  const renderInfoContent = () => {
+    switch (activeInfoTab) {
+      case "shipping":
+        return (
+          <div className="p-6 bg-white rounded-lg">
+            <h3 className="text-xl font-bold mb-4 flex items-center">
+              <Truck className="mr-3 text-blue-500" size={24} />
+              Shipping Information
+            </h3>
+            <ul className="space-y-3 text-gray-700">
+              <li>• Free shipping on orders over $50</li>
+              <li>• Estimated delivery: 3-5 business days</li>
+              <li>• Tracking available for all orders</li>
+              <li>• International shipping options available</li>
+            </ul>
+          </div>
+        );
+      case "promo":
+        return (
+          <div className="p-6 bg-white rounded-lg">
+            <h3 className="text-xl font-bold mb-4 flex items-center">
+              <Tag className="mr-3 text-green-500" size={24} />
+              Promo & Discounts
+            </h3>
+            <div className="space-y-3 text-gray-700">
+              <p>🎉 Current Offers:</p>
+              <ul className="list-disc pl-5">
+                <li>FIRST10: 10% off first purchase</li>
+                <li>SUMMER25: 25% off summer collection</li>
+                <li>Buy 2, Get 1 Free on selected items</li>
+              </ul>
             </div>
           </div>
-        </div>
+        );
+      case "details":
+      default:
+        return (
+          <div className="p-6 bg-white rounded-lg">
+            <h3 className="text-xl font-bold mb-4 flex items-center">
+              <Info className="mr-3 text-purple-500" size={24} />
+              Cart Details
+            </h3>
+            <div className="space-y-3 text-gray-700">
+              <p>Total Unique Items: {items.length}</p>
+              <p>
+                Total Quantity:{" "}
+                {items.reduce((sum, item) => sum + item.quantity, 0)}
+              </p>
+              <p>Subtotal: ${Number(totalPrice).toFixed(2)}</p>
+              <p>Estimated Tax: ${Number(totalPrice * 0.08).toFixed(2)}</p>
+            </div>
+          </div>
+        );
+    }
+  };
 
-        {/* Total Section */}
-        <div className="border-2 p-4">
-          <p className="font-semibold">Total</p>
-        </div>
-      </div>
+  return (
+    <div className="bg-gray-50 w-full min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Cart Items Section */}
+        <div className="lg:col-span-2 bg-white shadow-lg rounded-xl overflow-hidden">
+          {/* Header */}
+          <div className="grid grid-cols-6 gap-4 p-5 bg-gray-100 border-b border-gray-200 font-semibold text-gray-700">
+            <div className="col-span-1">Image</div>
+            <div className="col-span-2">Product Detail</div>
+            <div>Price</div>
+            <div>Quantity</div>
+            <div>Actions</div>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3">
-        <div className="border-2 md:col-span-2">
-          {items?.map((item) => (
+          {/* Cart Items */}
+          {items.map((item) => (
             <div
               key={item.id}
-              className="grid grid-cols-6 gap-4 p-4 border-b items-center"
+              className="grid grid-cols-6 gap-4 p-5 border-b border-gray-200 items-center hover:bg-gray-50 transition-colors group"
             >
-              <div>
+              {/* Product Image */}
+              <div className="col-span-1">
                 <img
-                  src=""
-                  alt="Product Image"
-                  className="w-24 h-24 object-cover"
+                  src={item.product.image || "/placeholder-image.png"}
+                  alt={item.product.title}
+                  className="w-24 h-24 object-cover rounded-lg shadow-md transition-transform group-hover:scale-105"
                 />
               </div>
 
-              {/* Product Details (Title, Color, Size) */}
-              {/* <div className="grid grid-cols-1 gap-1">*/}
-              <div className="">
-                <p>{item.product.title}</p>
-                <p>{item?.color}</p>
-                <p>{item?.size}</p>
+              {/* Product Details */}
+              <div className="col-span-2">
+                <p className="font-semibold text-lg text-gray-800">
+                  {item.product.title}
+                </p>
+                <p className="text-sm text-gray-500">{item.color}</p>
+                <p className="text-sm text-gray-500">{item.size}</p>
               </div>
 
-              {/* Price Column */}
+              {/* Price */}
               <div>
-                <p>{item.product?.price}</p>
+                <p className="text-gray-700 font-medium">
+                  ${Number(item.product.price).toFixed(2)}
+                </p>
               </div>
 
-              {/* Quantity Column */}
-              <div className="flex flex-col">
-                <Button
-                  size="small"
-                  className="w-1"
-                  onClick={() =>
-                    handleUpdateQuantity(item.id, item.quantity + 1, "addition")
-                  }
-                >
-                  <FaPlus />
-                </Button>
-                <div className="m-2">
-                  {/*<input value={item.quantity} className="w-12 text-center" />*/}
-                  <p style={{ padding: "0 0 0 19px" }}>{item.quantity}</p>
+              {/* Quantity Control */}
+              <div className="flex flex-col items-center space-y-2">
+                <div className="flex items-center border rounded-full">
+                  <button
+                    onClick={() =>
+                      handleUpdateQuantity(
+                        item.id,
+                        item.quantity + 1,
+                        "addition",
+                      )
+                    }
+                    className="p-2 hover:bg-gray-100 rounded-l-full"
+                  >
+                    <Plus size={16} className="text-gray-600" />
+                  </button>
+                  <span className="px-4 text-gray-700">{item.quantity}</span>
+                  <button
+                    onClick={() =>
+                      handleUpdateQuantity(
+                        item.id,
+                        Math.max(1, item.quantity - 1),
+                        "subtract",
+                      )
+                    }
+                    className="p-2 hover:bg-gray-100 rounded-r-full"
+                    disabled={item.quantity <= 1}
+                  >
+                    <Minus size={16} className="text-gray-600" />
+                  </button>
                 </div>
-                <Button
-                  size="small"
-                  className="w-1"
-                  onClick={() =>
-                    handleUpdateQuantity(item.id, item.quantity - 1, "subtract")
-                  }
-                >
-                  <FaMinus />
-                </Button>
               </div>
 
-              {/* Total Price Column */}
+              {/* Total Price */}
               <div>
-                <p>{item.product.price * item.quantity}</p>
+                <p className="font-semibold text-gray-800">
+                  ${Number(item.product.price * item.quantity).toFixed(2)}
+                </p>
               </div>
 
+              {/* Remove Item */}
               <div>
-                <Button
+                <button
                   onClick={() => {
                     handleOpen();
                     setRemoveid(item.id);
                   }}
+                  className="text-red-500 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-red-50"
                 >
-                  <HighlightOffIcon />
-                </Button>
-                <Modal
-                  open={open}
-                  onClose={handleClose}
-                  aria-labelledby="modal-modal-title"
-                  aria-describedby="modal-modal-description"
-                >
-                  <Box sx={style}>
-                    <Typography
-                      id="modal-modal-title"
-                      variant="h6"
-                      component="h2"
-                    >
-                      Text in a modal
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                      Are you sure you want to delete this cart item.
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={() => {
-                          removecartitem(removeid);
-                          handleClose();
-                        }}
-                      >
-                        yes
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="error"
-                        onClick={handleClose}
-                      >
-                        no
-                      </Button>
-                    </Typography>
-                  </Box>
-                </Modal>
-                {/*<HighlightOffIcon onClick={() => removecartitem(item.id)} />*/}
+                  <Trash2 size={20} />
+                </button>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="border-2 p-4">
-          <p className="font-semibold">Total price of all</p>
-          <p>{to}</p>
-          <Button variant="outlined" color="error" onClick={gotoNavigate}>
-            Checkout
-          </Button>
+        {/* Order Summary and Information Section */}
+        <div className="lg:col-span-1 space-y-8">
+          {/* Order Summary */}
+          <div className="bg-white shadow-lg rounded-xl p-8">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-4 flex items-center">
+              <ShoppingCart className="mr-3 text-blue-500" size={24} />
+              Order Summary
+            </h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center text-gray-700">
+                <span>Total Items:</span>
+                <span className="font-semibold">{items.length}</span>
+              </div>
+              <div className="flex justify-between items-center text-gray-800 font-bold text-lg border-t pt-4">
+                <span>Total Price:</span>
+                <span>${Number(totalPrice).toFixed(2)}</span>
+              </div>
+              <button
+                onClick={gotoNavigate}
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+              >
+                Proceed to Checkout
+              </button>
+            </div>
+          </div>
+
+          {/* Additional Information Tabs */}
+          <div className="bg-gray-100 rounded-lg">
+            <div className="flex border-b">
+              {["shipping", "promo", "details"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveInfoTab(tab)}
+                  className={`flex-1 py-3 font-semibold capitalize ${
+                    activeInfoTab === tab
+                      ? "bg-white text-blue-600 border-b-2 border-blue-600"
+                      : "text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            {renderInfoContent()}
+          </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 transform transition-all">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              Confirm Deletion
+            </h2>
+            <p className="mb-6 text-gray-600">
+              Are you sure you want to remove this item from your cart?
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={handleClose}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  removecartitem(removeid);
+                  handleClose();
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

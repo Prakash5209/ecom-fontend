@@ -45,9 +45,11 @@ function Home() {
           </div>
         ))}
       </Carousel>
-      <div className="flex justify-around">
+      <div className="flex justify-around py-2">
         <Box component="section" className="">
-          <Typography className="text-center">categoryes</Typography>
+          <Typography variant="h5" className="text-center">
+            Categories
+          </Typography>
           <hr />
           <br />
           {status === "succeeded" && categories.length > 0 ? (

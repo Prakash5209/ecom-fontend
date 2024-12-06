@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DOMPurify from "dompurify";
-import Button from "@mui/material/Button";
-import { FaPlus, FaMinus } from "react-icons/fa6";
-import { Typography } from "@mui/material";
+import {
+  PackageOpen,
+  Ruler,
+  Palette,
+  ShoppingCart,
+  Plus,
+  Minus,
+} from "lucide-react";
 import axios from "axios";
 import { addToCart } from "../rdx/slice/cartSlice";
 
@@ -12,151 +17,224 @@ const ProductDetail = () => {
   const [detail, setDetail] = useState(null);
   const [color, setColor] = useState(null);
   const [size, setSize] = useState(null);
+  const [stockValue, setStockValue] = useState(1);
 
   const currentUrl = window.location.href.split("/");
   const currentValue = currentUrl[currentUrl.length - 1];
 
-  let safeHTML = "";
-  if (detail !== null) {
-    safeHTML = DOMPurify.sanitize(detail.description);
-  }
-
   useEffect(() => {
-    const productInfo = async () => {
+    const fetchProductInfo = async () => {
       try {
         const response = await axios.get(
           `http://localhost:8000/product-detail/${currentValue}`,
         );
         setDetail(response.data);
-        console.log(response.data);
-        console.log("product save in detail usestate successfully");
       } catch (error) {
-        console.log("error", error);
+        console.error("Error fetching product details:", error);
       }
     };
-    productInfo();
-  }, []);
+    fetchProductInfo();
+  }, [currentValue]);
 
-  //stockvalue to store in state
-  const [stockValue, setStockValue] = useState(1);
-
-  const MinusFunction = () => {
-    if (stockValue > 0) {
-      setStockValue(stockValue - 1);
-    }
-  };
-  const PlusFunction = () => {
-    if (stockValue < detail.stock) {
-      setStockValue(stockValue + 1);
-    }
+  const handleStockDecrease = () => {
+    setStockValue((prev) => Math.max(1, prev - 1));
   };
 
-  //add to card operation
+  const handleStockIncrease = () => {
+    setStockValue((prev) => Math.min(detail.stock, prev + 1));
+  };
+
   const handleAddToCart = () => {
+    if (detail.product_color.length > 0 && !color) {
+      alert("Please select a color");
+      return;
+    }
+    if (detail.product_size.length > 0 && !size) {
+      alert("Please select a size");
+      return;
+    }
+
     const cartItem = {
       product: detail.id,
       quantity: stockValue,
-      color: color,
-      size: size,
+      color,
+      size,
     };
-    //dispatch(addToCart(cartItem));
-    if (detail.product_color.length > 0 && color === null) {
-      alert("please select a color");
-      return;
-    }
-    if (detail.product_size.length > 0 && size === null) {
-      alert("please select a size");
-      return;
-    }
+
     dispatch(addToCart(cartItem));
   };
+
   if (!detail) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 shadow-lg"></div>
+      </div>
+    );
   }
+
+  const safeDescription = DOMPurify.sanitize(detail.description);
+
   return (
-    <div className="grid place-items-center">
-      <div className="p-3 m-4 w-full lg:w-[1200px]">
-        <div className="grid grid-cols-[1fr,2fr]">
-          <div className="border-2"></div>
-          <div className="border-2">
-            <div className="okay">
-              <Typography variant="h4">{detail.title}</Typography>
-              {detail.category.name}
-              <p>stock: {detail.stock}</p>
-              {detail.stock > 0 ? <p>In stock</p> : <p>Out of stock</p>}
-              <p>{detail.price}</p>
+    <div className="w-full bg-gray-50 py-12 px-4">
+      <div className="w-full mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden h-auto">
+        <div className="grid md:grid-cols-2 gap-8 p-8 w-full">
+          {/* Product Image */}
+          <div className="bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner h-4/5">
+            <div className="w-full aspect-square bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse relative">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <PackageOpen className="w-24 h-24 text-gray-500 opacity-50" />
+              </div>
             </div>
-            <div className="flex">
-              {detail.product_color.map((col) => (
-                <div
-                  className={`border px-1 mx-1 cursor-pointer ${color === col.color ? "bg-green-500" : "bg-none"}`}
-                  key={col.id}
-                  onClick={() => {
-                    if (color === col.color) {
-                      setColor(null);
-                    } else {
-                      setColor(col.color);
-                    }
-                  }}
+          </div>
+
+          {/* Product Details */}
+          <div className="space-y-6">
+            <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight flex items-center">
+              <PackageOpen className="mr-4 text-blue-600" />
+              {detail.title}
+            </h1>
+
+            <div className="bg-gray-100 rounded-lg p-4 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 flex items-center">
+                  <Palette className="mr-2 text-blue-500" />
+                  Category: {detail.category.name}
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center ${
+                    detail.stock > 0
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
                 >
-                  {col.color}
-                </div>
-              ))}
+                  <PackageOpen className="mr-2" />
+                  {detail.stock > 0 ? "In Stock" : "Out of Stock"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-green-600">
+                  ${detail.price}
+                </span>
+                <span className="text-sm text-gray-600 flex items-center">
+                  <Ruler className="mr-2 text-blue-500" />
+                  Total Stock: {detail.stock}
+                </span>
+              </div>
             </div>
-            <div className="flex">
-              {detail.product_size.map((item) => (
-                <div
-                  className={`border px-4 mx-1 cursor-pointer ${size === item.size ? "bg-green-500" : "bg-none"}`}
-                  key={item.id}
-                  onClick={() => {
-                    if (size === item.size) {
-                      setSize(null);
-                    } else {
-                      setSize(item.size);
-                    }
-                  }}
+
+            {/* Color Selection */}
+            {detail.product_color.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                  <Palette className="mr-2 text-blue-600" />
+                  Select Color
+                </h3>
+                <div className="flex space-x-3">
+                  {detail.product_color.map((col) => (
+                    <button
+                      key={col.id}
+                      onClick={() =>
+                        setColor(color === col.color ? null : col.color)
+                      }
+                      className={`px-4 py-2 rounded-lg border-2 transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center ${
+                        color === col.color
+                          ? "bg-green-500 text-white border-green-600 scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                      }`}
+                    >
+                      <span
+                        className="w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: col.color }}
+                      ></span>
+                      {col.color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Size Selection */}
+            {detail.product_size.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                  <Ruler className="mr-2 text-blue-600" />
+                  Select Size
+                </h3>
+                <div className="flex space-x-3">
+                  {detail.product_size.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() =>
+                        setSize(size === item.size ? null : item.size)
+                      }
+                      className={`px-4 py-2 rounded-lg border-2 transition-all duration-300 ease-in-out transform hover:scale-105 ${
+                        size === item.size
+                          ? "bg-green-500 text-white border-green-600 scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                      }`}
+                    >
+                      {item.size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quantity Selection */}
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                <button
+                  onClick={handleStockDecrease}
+                  className="p-3 hover:bg-gray-100 transition-colors"
+                  disabled={stockValue <= 1}
                 >
-                  {item.size}
-                </div>
-              ))}
-            </div>
-            <div>
-              <Button size="small" onClick={MinusFunction}>
-                <FaMinus />
-              </Button>
-              <input
-                type="text"
-                className="w-12 border-2 text-center"
-                value={stockValue ?? ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (!isNaN(val) && detail.stock >= val) {
-                    setStockValue(Number(val));
-                  }
-                }}
-              />
-              <Button size="small" onClick={PlusFunction}>
-                <FaPlus />
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
+                  <Minus className="text-gray-600" />
+                </button>
+                <input
+                  type="number"
+                  value={stockValue}
+                  min="1"
+                  max={detail.stock}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setStockValue(Math.min(Math.max(val, 1), detail.stock));
+                  }}
+                  className="w-16 text-center border-x-2 border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleStockIncrease}
+                  className="p-3 hover:bg-gray-100 transition-colors"
+                  disabled={stockValue >= detail.stock}
+                >
+                  <Plus className="text-gray-600" />
+                </button>
+              </div>
+
+              <button
                 onClick={handleAddToCart}
+                className="flex items-center space-x-3 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md hover:shadow-lg"
               >
-                Add to cart
-              </Button>
+                <ShoppingCart className="mr-2" />
+                <span className="font-semibold">Add to Cart</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <div
-          className="no-tailwind-list"
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(safeHTML),
-          }}
-        />
+        {/* Product Description */}
+        <div className="bg-gray-100 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+            <PackageOpen className="mr-3 text-blue-600" />
+            Product Description
+          </h2>
+          <div
+            className="text-gray-700 prose max-w-none leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: safeDescription }}
+          />
+        </div>
       </div>
     </div>
   );
 };
+
 export default ProductDetail;

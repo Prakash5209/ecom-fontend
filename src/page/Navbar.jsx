@@ -67,11 +67,9 @@ import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-//import MailIcon from "@mui/icons-material/Mail";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 
 const Search = styled("div")(({ theme }) => ({
@@ -204,11 +202,19 @@ export default function Navbar() {
           aria-label="show 17 new notifications"
           color="inherit"
         >
-          <Badge badgeContent={17} color="error">
-            <NavLink to="/cart">
-              <ShoppingCartIcon />
-            </NavLink>
-          </Badge>
+          {auth ? (
+            <Badge badgeContent={4} color="error">
+              <NavLink to="/cart">
+                <ShoppingCartIcon />
+              </NavLink>
+            </Badge>
+          ) : (
+            <Badge badgeContent={0} color="error">
+              <NavLink to="/login">
+                <ShoppingCartIcon />
+              </NavLink>
+            </Badge>
+          )}
         </IconButton>
         <p>Cart</p>
       </MenuItem>
@@ -290,11 +296,19 @@ export default function Navbar() {
               aria-label="show 17 new notifications"
               color="inherit"
             >
-              <Badge badgeContent={4} color="error">
-                <NavLink to="/cart">
-                  <ShoppingCartIcon />
-                </NavLink>
-              </Badge>
+              {auth ? (
+                <Badge badgeContent={4} color="error">
+                  <NavLink to="/cart">
+                    <ShoppingCartIcon />
+                  </NavLink>
+                </Badge>
+              ) : (
+                <Badge badgeContent={0} color="error">
+                  <NavLink to="/login">
+                    <ShoppingCartIcon />
+                  </NavLink>
+                </Badge>
+              )}
             </IconButton>
             {auth ? (
               <IconButton
@@ -309,18 +323,18 @@ export default function Navbar() {
                 <AccountCircle />
               </IconButton>
             ) : (
-              <NavLink to="/login">
-                <IconButton
-                  size="large"
-                  edge="end"
-                  aria-label="account of current user"
-                  aria-controls={menuId}
-                  aria-haspopup="true"
-                  color="inherit"
-                >
+              <IconButton
+                size="large"
+                edge="end"
+                aria-label="account of current user"
+                aria-controls={menuId}
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <NavLink to="/login">
                   <LoginIcon />
-                </IconButton>
-              </NavLink>
+                </NavLink>
+              </IconButton>
             )}
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
