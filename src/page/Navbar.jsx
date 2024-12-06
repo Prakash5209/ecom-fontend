@@ -115,7 +115,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 //export default function PrimarySearchAppBar() {
 export default function Navbar() {
   // authentication key
-  const auth = localStorage.getItem("sown_access");
+  const auth = sessionStorage.getItem("sown_access");
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -161,7 +161,7 @@ export default function Navbar() {
       <MenuItem
         onClick={() => {
           handleMenuClose();
-          localStorage.removeItem("sown_access");
+          sessionStorage.removeItem("sown_access");
           window.location.href = "/";
           alert("logged out");
         }}
