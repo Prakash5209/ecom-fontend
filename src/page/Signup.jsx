@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   TextField,
@@ -10,26 +10,24 @@ import {
   Box,
 } from "@mui/material";
 
-function Login() {
+function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [confirmpassword, setConfirmpassword] = useState("");
 
-  const loginFunction = (e) => {
+  const submitSignupForm = async (e) => {
     e.preventDefault();
-    setError("");
-
-    axios
-      .post("http://localhost:8000/account/api/token/", { username, password })
-      .then((res) => {
-        sessionStorage.setItem("sown_access", res.data.access);
-        alert("Logged in successfully");
-        window.location.href = "/";
-      })
-      .catch((e) => {
-        setError("Invalid username or password");
-        console.log(e);
-      });
+    try {
+      if (password === confirmpassword) {
+        const response = await axios.post(
+          "http://localhost:8000/account/api/create-user/",
+          { username: username, password: password },
+        );
+        console.log("create-user-api", response.data);
+      }
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+    }
   };
 
   return (
@@ -63,17 +61,16 @@ function Login() {
             color: "primary.main",
           }}
         >
-          Sign In
+          Sign up
         </Typography>
 
-        <Box component="form" onSubmit={loginFunction} sx={{ width: "100%" }}>
+        <Box component="form" sx={{ width: "100%" }}>
           <TextField
             fullWidth
             margin="normal"
             label="Username"
-            variant="outlined"
-            value={username}
             onChange={(e) => setUsername(e.target.value)}
+            variant="outlined"
             required
             sx={{ mb: 2 }}
           />
@@ -82,25 +79,25 @@ function Login() {
             fullWidth
             margin="normal"
             label="Password"
+            onChange={(e) => setPassword(e.target.value)}
             type="password"
             variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             required
             sx={{ mb: 2 }}
           />
 
-          {error && (
-            <Typography
-              color="error"
-              variant="body2"
-              sx={{ mb: 2, textAlign: "center" }}
-            >
-              {error}
-            </Typography>
-          )}
-
+          <TextField
+            fullWidth
+            margin="normal"
+            label="confirm Password"
+            type="password"
+            onChange={(e) => setConfirmpassword(e.target.value)}
+            variant="outlined"
+            required
+            sx={{ mb: 2 }}
+          />
           <Button
+            onClick={submitSignupForm}
             fullWidth
             variant="contained"
             color="primary"
@@ -112,14 +109,12 @@ function Login() {
               textTransform: "none",
             }}
           >
-            Sign In
+            Sign up
           </Button>
-          <br />
-          <Link to="/signup">Create new user</Link>
         </Box>
       </Paper>
     </Container>
   );
 }
 
-export default Login;
+export default Signup;
