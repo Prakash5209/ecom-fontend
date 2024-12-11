@@ -50,9 +50,12 @@
 // }
 
 // export default Navbar;
-
-import * as React from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+import SearchProduct from "../page/SearchProduct.jsx";
 
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
@@ -114,11 +117,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 //export default function PrimarySearchAppBar() {
 export default function Navbar() {
+  const navigate = useNavigate();
   // authentication key
   const auth = sessionStorage.getItem("sown_access");
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -248,6 +252,34 @@ export default function Navbar() {
     </Menu>
   );
 
+  //search input value
+  const [searchValue, setSearchValue] = useState("");
+  const handleInputChange = (event) => {
+    setSearchValue(event.target.value);
+  };
+  console.log(searchValue);
+
+  const handleSearch = async (e) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/p?text=${e}`);
+      if (response.status === 200) {
+        navigate(`/result?search_query=${e}`, {
+          state: { searchQuery: response.data },
+        });
+        console.log("response.data", response.data);
+      } else if (response.status === 204) {
+        navigate(`/result?search_query=${e}`, {
+          state: { searchQuery: {} },
+        });
+        console.log("response.data elseif ", response.data);
+      } else {
+        console.log("else");
+      }
+    } catch (err) {
+      console.log(err.response);
+    }
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -277,7 +309,14 @@ export default function Navbar() {
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Search…"
+              value={searchValue}
+              onChange={handleInputChange}
               inputProps={{ "aria-label": "search" }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch(searchValue);
+                }
+              }}
             />
           </Search>
           <Box sx={{ flexGrow: 1 }} />

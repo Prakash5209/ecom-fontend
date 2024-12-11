@@ -10,6 +10,7 @@ import Home from "./page/Home.jsx";
 import Product from "./page/Product.jsx";
 import ProductDetail from "./page/ProductDetail.jsx";
 import CheckOut from "./page/CheckOut.jsx";
+import SearchProduct from "./page/SearchProduct.jsx";
 import Login from "./page/Login.jsx";
 import Signup from "./page/Signup.jsx";
 import Cart from "./page/Cart.jsx";
@@ -32,6 +33,7 @@ const App = () => {
         <Route index element={<Home />} />
         <Route path="category/:slug" element={<Product />} />
         <Route path="P/:slug" element={<ProductDetail />} />
+        <Route path="result" element={<SearchProduct />} />
         <Route path="cart" element={<Cart />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />

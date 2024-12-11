@@ -11,22 +11,29 @@ import {
 } from "@mui/material";
 
 function Signup() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
 
   const submitSignupForm = async (e) => {
     e.preventDefault();
+    if (password !== confirmpassword) {
+      return alert("password didn't match");
+    }
+
     try {
-      if (password === confirmpassword) {
-        const response = await axios.post(
-          "http://localhost:8000/account/api/create-user/",
-          { username: username, password: password },
-        );
-        console.log("create-user-api", response.data);
-      }
+      const { status } = await axios.post(
+        "http://localhost:8000/account/api/create-user/",
+        { username, password },
+      );
+      alert(status === 201 ? "user created" : "user not created");
+      setUsername("");
+      setPassword("");
+      setConfirmpassword("");
+      if (status === 201) navigate("/login");
     } catch (err) {
-      console.log(err.response?.data || err.message);
+      console.error(err.response?.data || err.message);
     }
   };
 
