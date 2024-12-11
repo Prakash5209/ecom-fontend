@@ -86,6 +86,18 @@ function SearchProduct() {
   const { searchQuery } = location.state || {};
   console.log("searchQuery", searchQuery);
   console.log("searchQuery.length", searchQuery.length);
+  const ary = [];
+  for (var i in searchQuery) {
+    if (ary.includes(searchQuery[i].category.name)) {
+      console.log("in");
+    } else {
+      ary[i] = searchQuery[i].category.name;
+    }
+    console.log(ary.includes(i));
+    //console.log(searchQuery[i].category.name);
+  }
+
+  console.log(ary);
   return (
     // <div>
     //   {searchQuery.map((i) => (
@@ -96,7 +108,11 @@ function SearchProduct() {
       {/* Sidebar */}
       <div className="col-span-2 p-4 border-r-2">
         <span className="text-lg mb-4">Categories:</span>
-        <p className="">category</p>
+        <p className="">
+          {ary.map((item, index) => (
+            <span key={index}>{item}</span>
+          ))}
+        </p>
         {/* Add category list or filter options here */}
         <br />
         <div className="border p-2 rounded">
