@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const cartFetchData = createAsyncThunk(
   "cart/cartFetchData",
@@ -38,7 +38,9 @@ export const addToCart = createAsyncThunk(
       }
       return response.data;
     } catch (error) {
-      if (error.response.status === 500) {
+      if (error.response.status === 401) {
+        alert("Login gar pahile");
+      } else if (error.response.status === 500) {
         alert("cannot addtocart : quantity more than stock");
       }
       return rejectWithValue(error.response.data);

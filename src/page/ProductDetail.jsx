@@ -72,6 +72,7 @@ const ProductDetail = () => {
     );
   }
 
+  console.log(detail);
   const safeDescription = DOMPurify.sanitize(detail.description);
 
   return (
@@ -79,10 +80,18 @@ const ProductDetail = () => {
       <div className="w-full mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden h-auto">
         <div className="grid md:grid-cols-2 gap-8 p-8 w-full">
           {/* Product Image */}
+
           <div className="bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner h-4/5">
-            <div className="w-full aspect-square bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse relative">
+            <div className="w-full aspect-square bg-gradient-to-br from-gray-200 to-gray-300 relative">
               <div className="absolute inset-0 flex items-center justify-center">
-                <PackageOpen className="w-24 h-24 text-gray-500 opacity-50" />
+                <img
+                  src={
+                    detail.productmodel_image[0]?.image ||
+                    "https://fastly.picsum.photos/id/9/5000/3269.jpg?hmac=cZKbaLeduq7rNB8X-bigYO8bvPIWtT-mh8GRXtU3vPc"
+                  }
+                  alt={detail.title}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

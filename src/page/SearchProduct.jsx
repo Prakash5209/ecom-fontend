@@ -45,7 +45,7 @@ function SearchProduct() {
       <div className="relative">
         <img
           src={
-            item.image ||
+            `http://localhost:8000/${item.productmodel_image[0].image}` ||
             "https://fastly.picsum.photos/id/9/5000/3269.jpg?hmac=cZKbaLeduq7rNB8X-bigYO8bvPIWtT-mh8GRXtU3vPc"
           }
           alt={item.title}
@@ -89,7 +89,6 @@ function SearchProduct() {
   const ary = [];
   for (var i in searchQuery) {
     if (ary.includes(searchQuery[i].category.name)) {
-      console.log("in");
     } else {
       ary[i] = searchQuery[i].category.name;
     }
@@ -108,11 +107,17 @@ function SearchProduct() {
       {/* Sidebar */}
       <div className="col-span-2 p-4 border-r-2">
         <span className="text-lg mb-4">Categories:</span>
-        <p className="">
+        <ol className="">
           {ary.map((item, index) => (
-            <span key={index}>{item}</span>
+            <li
+              key={index}
+              className="pointer"
+              onClick={() => navigate(`/category/${item}/`)}
+            >
+              {item}
+            </li>
           ))}
-        </p>
+        </ol>
         {/* Add category list or filter options here */}
         <br />
         <div className="border p-2 rounded">

@@ -108,7 +108,7 @@ function Cart() {
               Shipping Information
             </h3>
             <ul className="space-y-3 text-gray-700">
-              <li>• Free shipping on orders over $50</li>
+              <li>• Free shipping on orders over NRP 5000</li>
               <li>• Estimated delivery: 3-5 business days</li>
               <li>• Tracking available for all orders</li>
               <li>• International shipping options available</li>
@@ -154,6 +154,8 @@ function Cart() {
     }
   };
 
+  console.log("item", items);
+
   return (
     <div className="bg-gray-50 w-full min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -177,7 +179,10 @@ function Cart() {
               {/* Product Image */}
               <div className="col-span-1">
                 <img
-                  src={item.product.image || "/placeholder-image.png"}
+                  src={
+                    item.product.productmodel_image[0].image ||
+                    "/placeholder-image.png"
+                  }
                   alt={item.product.title}
                   className="w-24 h-24 object-cover rounded-lg shadow-md transition-transform group-hover:scale-105"
                 />

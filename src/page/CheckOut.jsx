@@ -12,21 +12,104 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+
+//basic select
+import Box from "@mui/material/Box";
+
 import { cartFetchData } from "../rdx/slice/cartSlice";
 import axios from "axios";
 
 const CheckOut = () => {
+  const [country_district, setCountry_district] = useState("");
   const [userForm, setUserForm] = useState({
     firstName: "",
     middleName: "",
     lastName: "",
     email: "",
     phone: "",
+    district: "",
     address: "",
     city: "",
-    state: "",
     zipCode: "",
   });
+
+  const country_nepal_districts = [
+    [
+      "Bagmati Province",
+      ["Kathmandu", 0],
+      ["Lalitpur", 10],
+      ["Bhaktapur", 15],
+      ["Makwanpur", 40],
+      ["Chitwan", 50],
+      ["Sindhupalchowk", 60],
+      ["Kavrepalanchok", 70],
+      ["Rasuwa", 80],
+      ["Dhading", 90],
+      ["Nuwakot", 100],
+    ],
+    [
+      "Province 1",
+      ["Morang", 150],
+      ["Sunsari", 160],
+      ["Jhapa", 170],
+      ["Ilam", 180],
+      ["Taplejung", 200],
+      ["Bhojpur", 210],
+      ["Okhaldhunga", 220],
+    ],
+    [
+      "Madhesh Province",
+      ["Dhanusha", 130],
+      ["Mahottari", 140],
+      ["Sarlahi", 150],
+      ["Bara", 160],
+      ["Rautahat", 170],
+      ["Parsa", 180],
+    ],
+    [
+      "Gandaki Province",
+      ["Pokhara", 120],
+      ["Tanahun", 130],
+      ["Gorkha", 140],
+      ["Manang", 150],
+      ["Mustang", 160],
+      ["Baglung", 170],
+      ["Parbat", 180],
+    ],
+    [
+      "Lumbini Province",
+      ["Rupandehi", 190],
+      ["Kapilvastu", 200],
+      ["Dang", 210],
+      ["Palpa", 220],
+      ["Arghakhanchi", 230],
+    ],
+    [
+      "Karnali Province",
+      ["Jumla", 250],
+      ["Kalikot", 260],
+      ["Mugu", 270],
+      ["Dolpa", 280],
+      ["Humla", 300],
+    ],
+    [
+      "Sudurpashchim Province",
+      ["Doti", 310],
+      ["Achham", 320],
+      ["Baitadi", 330],
+      ["Darchula", 340],
+      ["Kanchanpur", 350],
+      ["Kailali", 360],
+    ],
+  ];
+
+  const handleChange = (event, value) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setCountry_district(value);
+    console.log("value: ", value);
+  };
+  console.log("valv", country_district);
 
   const [paymentMethod, setPaymentMethod] = useState("");
 
@@ -64,7 +147,7 @@ const CheckOut = () => {
           {
             return_url: "http://localhost:5173/cart/",
             website_url: "https://localhost:5173/",
-            amount: 10000,
+            amount: 100000,
             purchase_order_id: "Order01",
             purchase_order_name: "test",
             customer_info: {
@@ -159,7 +242,42 @@ const CheckOut = () => {
               />
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <div className="grid md:grid-cols-1 gap-4 mt-4">
+              <Box sx={{ minWidth: 120 }}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">
+                    District
+                  </InputLabel>
+
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={country_district || ""}
+                    label="district"
+                    onChange={handleChange}
+                  >
+                    {country_nepal_districts.map((province, index) => (
+                      <div key={index}>
+                        {province.slice(1).map((district, subindex) => (
+                          <>
+                            <MenuItem
+                              key={subindex}
+                              value={district[0]}
+                              onClick={(event) =>
+                                handleChange(event, district[0])
+                              }
+                            >
+                              {district[0]}
+                            </MenuItem>
+                          </>
+                        ))}
+                      </div>
+                    ))}
+                    {/* <MenuItem value={10}>Ten</MenuItem> */}
+                  </Select>
+                </FormControl>
+              </Box>
+
               <TextField
                 fullWidth
                 label="Address"
@@ -168,24 +286,16 @@ const CheckOut = () => {
                 onChange={handleInputChange}
                 variant="outlined"
                 size="small"
-                className="md:col-span-3"
+                // className="md:col-span-3"
                 required
               />
+            </div>
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
               <TextField
                 fullWidth
                 label="City"
                 name="city"
                 value={userForm.city}
-                onChange={handleInputChange}
-                variant="outlined"
-                size="small"
-                required
-              />
-              <TextField
-                fullWidth
-                label="State"
-                name="state"
-                value={userForm.state}
                 onChange={handleInputChange}
                 variant="outlined"
                 size="small"
@@ -224,7 +334,7 @@ const CheckOut = () => {
                   </Typography>
                 </div>
                 <Typography variant="body1">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  nrp{(item.product.price * item.quantity).toFixed(2)}
                 </Typography>
               </div>
             ))}
@@ -236,7 +346,7 @@ const CheckOut = () => {
                 Total
               </Typography>
               <Typography variant="h6" className="font-bold">
-                ${calculateTotal()}
+                nrp{calculateTotal()}
               </Typography>
             </div>
 

@@ -3,9 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Slider from "@mui/material/Slider";
-import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
-import { Heart, ShoppingCart } from "lucide-react";
 
 const Product = () => {
   const navigate = useNavigate();
@@ -17,7 +15,7 @@ const Product = () => {
 
   // slider necessary component start
   function valuetext(value) {
-    return `${value}°C`;
+    return `${value}k`;
   }
   const [value2, setValue2] = useState([20, 37]);
 
@@ -67,6 +65,8 @@ const Product = () => {
     fetchData();
   }, [clickedCategory]);
 
+  console.log(productList);
+
   const ProductCard = ({ item, onNavigate }) => (
     <div
       className="bg-white border rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
@@ -75,22 +75,12 @@ const Product = () => {
       <div className="relative">
         <img
           src={
-            item.image ||
+            `http://localhost:8000/${item.productmodel_image[0].image}` ||
             "https://fastly.picsum.photos/id/9/5000/3269.jpg?hmac=cZKbaLeduq7rNB8X-bigYO8bvPIWtT-mh8GRXtU3vPc"
           }
           alt={item.title}
           className="w-full h-48 object-cover"
         />
-
-        {/* heart and cart button */}
-        {/* <div className="absolute top-2 right-2 flex space-x-2">
-          <button className="bg-white/50 rounded-full p-2 hover:bg-white">
-            <Heart className="text-gray-600 w-5 h-5" />
-          </button>
-          <button className="bg-white/50 rounded-full p-2 hover:bg-white">
-            <ShoppingCart className="text-gray-600 w-5 h-5" />
-          </button>
-        </div> */}
       </div>
 
       <div className="p-3">

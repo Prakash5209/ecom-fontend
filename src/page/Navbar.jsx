@@ -54,8 +54,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-import SearchProduct from "../page/SearchProduct.jsx";
+import { useSelector } from "react-redux";
 
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
@@ -117,6 +116,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 //export default function PrimarySearchAppBar() {
 export default function Navbar() {
+  const { items, status, error } = useSelector((state) => state.cart);
   const navigate = useNavigate();
   // authentication key
   const auth = sessionStorage.getItem("sown_access");
@@ -207,7 +207,7 @@ export default function Navbar() {
           color="inherit"
         >
           {auth ? (
-            <Badge badgeContent={4} color="error">
+            <Badge badgeContent={items.length} color="error">
               <NavLink to="/cart">
                 <ShoppingCartIcon />
               </NavLink>
@@ -261,6 +261,7 @@ export default function Navbar() {
 
   const handleSearch = async (e) => {
     try {
+      //let response = "http://localhost:8000/p?text=${e}&minp=0&maxp=16000";
       const response = await axios.get(`http://localhost:8000/p?text=${e}`);
       if (response.status === 200) {
         navigate(`/result?search_query=${e}`, {
@@ -336,7 +337,7 @@ export default function Navbar() {
               color="inherit"
             >
               {auth ? (
-                <Badge badgeContent={4} color="error">
+                <Badge badgeContent={items.length} color="error">
                   <NavLink to="/cart">
                     <ShoppingCartIcon />
                   </NavLink>
