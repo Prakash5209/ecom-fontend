@@ -1,36 +1,31 @@
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
-import Slider from "@mui/material/Slider";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import { Typography } from "@mui/material";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack";
 
 function SearchProduct() {
+  const location = useLocation();
+  const { searchQuery } = location.state || {}; // items from navbar search field
   const navigate = useNavigate();
-  // slider necessary component start
-  function valuetext(value) {
-    return `${value}°C`;
-  }
-  const [value2, setValue2] = useState([20, 37]);
+  const { search } = useLocation(); // getting the search from current url (product name or category name)
+  const [productList, setProductList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const minDistance = 10;
-  const handleChange2 = (event, newValue, activeThumb) => {
-    if (!Array.isArray(newValue)) {
-      return;
+  useEffect(() => {
+    if (searchQuery) {
+      setProductList(searchQuery);
     }
+  }, [searchQuery]);
 
-    if (newValue[1] - newValue[0] < minDistance) {
-      if (activeThumb === 0) {
-        const clamped = Math.min(newValue[0], 100 - minDistance);
-        setValue2([clamped, clamped + minDistance]);
-      } else {
-        const clamped = Math.max(newValue[1], minDistance);
-        setValue2([clamped - minDistance, clamped]);
-      }
-    } else {
-      setValue2(newValue);
-    }
-  };
-  // slider necessary component end
+  console.log("---------productList", productList);
+  // searched name from url
+  const item_name = search.split("=")[1];
 
   const NavigateproductDetail = (slug) => {
     navigate(`/P/${slug}`);
@@ -81,22 +76,68 @@ function SearchProduct() {
     </div>
   );
 
-  // searched result
-  const location = useLocation();
-  const { searchQuery } = location.state || {};
-  console.log("searchQuery", searchQuery);
-  console.log("searchQuery.length", searchQuery.length);
-  const ary = [];
-  for (var i in searchQuery) {
-    if (ary.includes(searchQuery[i].category.name)) {
+  //filter price range from this function
+  const [priceRange, setPriceRange] = useState([0, 0]);
+  console.log("price range", priceRange);
+
+  const price_range_filter = async (e) => {
+    e.preventDefault();
+
+    if (priceRange[0] >= 0 && priceRange[1] >= 0) {
+      setLoading(true);
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/p/?text=${item_name}&minp=${priceRange[0]}&maxp=${priceRange[1]}`,
+        );
+        console.log("response.data", response.data);
+        setProductList(response.data);
+        if (response.status === 200) {
+          setLoading(false);
+        } else if (response.status === 204) {
+          alert("no content found");
+          setLoading(true);
+        } else {
+          setTimeout(alert("no content found 024", 5000));
+          setLoading(true);
+        }
+      } catch (error) {
+        console.error("error", error);
+      }
     } else {
-      ary[i] = searchQuery[i].category.name;
+      alert("invalid price range");
     }
-    console.log(ary.includes(i));
+  };
+
+  // searched result
+  const ary = [];
+
+  // for (var j of productList) {
+  //   console.log("productlis----------", j);
+  // }
+
+  for (var i in productList) {
+    if (ary.includes(productList[i].category.name)) {
+    } else {
+      ary[i] = productList[i].category.name;
+    }
     //console.log(searchQuery[i].category.name);
   }
+  const lst_price = [];
+  productList.forEach((i) => {
+    lst_price.push(i.price);
+    console.log("iterate", i.price);
+  });
 
-  console.log(ary);
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+      </div>
+    );
+
+  if (error) return <div className="text-center text-red-500 p-4">{error}</div>;
+
   return (
     // <div>
     //   {searchQuery.map((i) => (
@@ -106,45 +147,54 @@ function SearchProduct() {
     <div className="grid grid-cols-12 gap-4">
       {/* Sidebar */}
       <div className="col-span-2 p-4 border-r-2">
-        <span className="text-lg mb-4">Categories:</span>
-        <ol className="">
-          {ary.map((item, index) => (
-            <li
-              key={index}
-              className="pointer"
-              onClick={() => navigate(`/category/${item}/`)}
-            >
-              {item}
-            </li>
-          ))}
-        </ol>
-        {/* Add category list or filter options here */}
-        <br />
-        <div className="border p-2 rounded">
-          <p>Select price range</p>
-          <Slider
-            getAriaLabel={() => "Minimum distance shift"}
-            value={value2}
-            onChange={handleChange2}
-            valueLabelDisplay="auto"
-            getAriaValueText={valuetext}
-            disableSwap
-          />
-          <p>
-            Min:{value2[0]} Max:{value2[1]}
-          </p>
+        <div>
+          <span className="text-lg mb-4">Categories:</span>
+          <ol className="">
+            {ary.map((item, index) => (
+              <li
+                key={index}
+                className="pointer"
+                onClick={() => navigate(`/category/${item}/`)}
+              >
+                {item}
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div>
+          <Stack component="form" spacing={1} onSubmit={price_range_filter}>
+            <TextField
+              id="outlined-basic"
+              label="min price"
+              variant="outlined"
+              size="small"
+              type="number"
+              onChange={(e) => setPriceRange([e.target.value, priceRange[1]])}
+            />
+            <TextField
+              id="outlined-basic"
+              label="max price"
+              variant="outlined"
+              size="small"
+              type="number"
+              onChange={(e) => setPriceRange([priceRange[0], e.target.value])}
+            />
+            <Button variant="outlined" size="small" type="submit">
+              submit
+            </Button>
+          </Stack>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="col-span-10 p-4">
-        {Object.keys(searchQuery).length === 0 ? (
+        {Object.keys(productList).length === 0 ? (
           <div className="text-center text-gray-500">
             No products found in this category.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {searchQuery.map((item) => (
+            {productList.map((item) => (
               <ProductCard
                 key={item.id}
                 item={item}

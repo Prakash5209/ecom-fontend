@@ -2,8 +2,11 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Slider from "@mui/material/Slider";
+
 import { Typography } from "@mui/material";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack";
 
 const Product = () => {
   const navigate = useNavigate();
@@ -12,32 +15,6 @@ const Product = () => {
   const [error, setError] = useState(null);
   const location = useLocation();
   const clickedCategory = location.state?.catename;
-
-  // slider necessary component start
-  function valuetext(value) {
-    return `${value}k`;
-  }
-  const [value2, setValue2] = useState([20, 37]);
-
-  const minDistance = 10;
-  const handleChange2 = (event, newValue, activeThumb) => {
-    if (!Array.isArray(newValue)) {
-      return;
-    }
-
-    if (newValue[1] - newValue[0] < minDistance) {
-      if (activeThumb === 0) {
-        const clamped = Math.min(newValue[0], 100 - minDistance);
-        setValue2([clamped, clamped + minDistance]);
-      } else {
-        const clamped = Math.max(newValue[1], minDistance);
-        setValue2([clamped - minDistance, clamped]);
-      }
-    } else {
-      setValue2(newValue);
-    }
-  };
-  // slider necessary component end
 
   const NavigateproductDetail = (slug) => {
     navigate(`/P/${slug}`);
@@ -65,7 +42,38 @@ const Product = () => {
     fetchData();
   }, [clickedCategory]);
 
-  console.log(productList);
+  //filter price range from this function
+  const [priceRange, setPriceRange] = useState([0, 0]);
+  console.log("price range", priceRange);
+
+  const price_range_filter = async (e) => {
+    e.preventDefault();
+    if (priceRange[0] >= 0 && priceRange[1] >= 0) {
+      setLoading(true);
+      console.log("clickedCategory", clickedCategory.name);
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/p/?text=${clickedCategory.name}&minp=${priceRange[0]}&maxp=${priceRange[1]}`,
+        );
+        console.log("response.data", response.data);
+        setProductList(response.data);
+        if (response.status === 200) {
+          setLoading(false);
+        } else if (response.status === 204) {
+          alert("no content found");
+          setLoading(false);
+        } else {
+          setTimeout(alert("error", 5000));
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("error", error);
+      }
+    } else {
+      alert("invalid price range");
+    }
+  };
 
   const ProductCard = ({ item, onNavigate }) => (
     <div
@@ -114,23 +122,33 @@ const Product = () => {
     <div className="grid grid-cols-12 gap-4">
       {/* Sidebar */}
       <div className="col-span-2 p-4 border-r-2">
-        <span className="text-lg mb-4">Categories:</span>
-        <p className="">{clickedCategory?.name || "Products"}</p>
-        {/* Add category list or filter options here */}
+        <div>
+          <span className="text-lg mb-4">Categories:</span>{" "}
+          <ol className="">{productList[0]?.category.name}</ol>
+        </div>
         <br />
-        <div className="border p-2 rounded">
-          <p>Select price range</p>
-          <Slider
-            getAriaLabel={() => "Minimum distance shift"}
-            value={value2}
-            onChange={handleChange2}
-            valueLabelDisplay="auto"
-            getAriaValueText={valuetext}
-            disableSwap
-          />
-          <p>
-            Min:{value2[0]} Max:{value2[1]}
-          </p>
+        <div>
+          <Stack component="form" spacing={1} onSubmit={price_range_filter}>
+            <TextField
+              id="outlined-basic"
+              label="min price"
+              variant="outlined"
+              size="small"
+              type="number"
+              onChange={(e) => setPriceRange([e.target.value, priceRange[1]])}
+            />
+            <TextField
+              id="outlined-basic"
+              label="max price"
+              variant="outlined"
+              size="small"
+              type="number"
+              onChange={(e) => setPriceRange([priceRange[0], e.target.value])}
+            />
+            <Button variant="outlined" size="small" type="submit">
+              submit
+            </Button>
+          </Stack>
         </div>
       </div>
 
