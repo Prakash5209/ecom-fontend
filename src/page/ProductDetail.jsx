@@ -226,6 +226,14 @@ const ProductDetail = () => {
                 <ShoppingCart className="mr-2" />
                 <span className="font-semibold">Add to Cart</span>
               </button>
+
+              <button
+                // onClick={handleAddToCart}
+                className="flex items-center space-x-3 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md hover:shadow-lg"
+              >
+                <ShoppingCart className="mr-2" />
+                <span className="font-semibold">Buy now</span>
+              </button>
             </div>
           </div>
         </div>

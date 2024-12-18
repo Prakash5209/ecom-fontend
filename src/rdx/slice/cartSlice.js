@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 export const cartFetchData = createAsyncThunk(
   "cart/cartFetchData",
@@ -33,7 +32,7 @@ export const addToCart = createAsyncThunk(
         },
       );
       console.log("addtocart response", response);
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 201) {
         alert("status:product added to cart successfully");
       }
       return response.data;

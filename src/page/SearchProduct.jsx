@@ -123,11 +123,6 @@ function SearchProduct() {
     }
     //console.log(searchQuery[i].category.name);
   }
-  const lst_price = [];
-  productList.forEach((i) => {
-    lst_price.push(i.price);
-    console.log("iterate", i.price);
-  });
 
   if (loading)
     return (

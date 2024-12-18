@@ -19,14 +19,12 @@ import {
 
 function Cart() {
   // callback request from khalti start
-
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const queryParams = {};
   searchParams.forEach((value, key) => {
     queryParams[key] = value;
   });
-  console.log("query", queryParams);
 
   useEffect(() => {
     const khaltiPaymentVerify = async () => {
@@ -50,7 +48,16 @@ function Cart() {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // fetching all cart item from cartSlice (Redux)
   const { items, status, error } = useSelector((state) => state.cart);
+
+  console.log("fetching all cart items", items);
+  useEffect(() => {
+    if (location.pathname === "/cart") {
+      dispatch(cartFetchData());
+    }
+  }, [dispatch, location.pathname]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -154,8 +161,6 @@ function Cart() {
     }
   };
 
-  console.log("item", items);
-
   return (
     <div className="bg-gray-50 w-full min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -179,10 +184,7 @@ function Cart() {
               {/* Product Image */}
               <div className="col-span-1">
                 <img
-                  src={
-                    item.product.productmodel_image[0].image ||
-                    "/placeholder-image.png"
-                  }
+                  src={`http://localhost:8000/${item.productmodel_image.image}`}
                   alt={item.product.title}
                   className="w-24 h-24 object-cover rounded-lg shadow-md transition-transform group-hover:scale-105"
                 />

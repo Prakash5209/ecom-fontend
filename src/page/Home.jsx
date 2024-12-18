@@ -29,7 +29,11 @@ function Home() {
   ];
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (status === "failed") {
