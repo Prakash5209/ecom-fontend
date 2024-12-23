@@ -17,11 +17,9 @@ export default CategoriesMenu;
 // Recursive Dropdown Component
 function CategoryDropdown({ category }) {
   const navigate = useNavigate();
-  const [catename, setCatename] = useState();
   const hasChildren = category.children && category.children.length > 0;
   const categoryProduct = (item) => {
-    setCatename(item);
-    navigate(`category/${item.name}/`, { state: { catename: item } });
+    navigate(`category/${item.name}/`);
   };
 
   return (

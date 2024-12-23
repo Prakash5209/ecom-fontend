@@ -122,7 +122,7 @@ const ProductDetail = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold text-green-600">
-                  ${detail.price}
+                  NPR {detail.price}
                 </span>
                 <span className="text-sm text-gray-600 flex items-center">
                   <Ruler className="mr-2 text-blue-500" />

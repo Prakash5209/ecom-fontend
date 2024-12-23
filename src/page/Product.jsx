@@ -14,7 +14,8 @@ const Product = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const location = useLocation();
-  const clickedCategory = location.state?.catename;
+  const categoryName = location.pathname.split("/")[2];
+  console.log("categoryName", categoryName);
 
   const NavigateproductDetail = (slug) => {
     navigate(`/P/${slug}`);
@@ -22,13 +23,13 @@ const Product = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!clickedCategory) return;
+      if (!categoryName) return;
 
       setLoading(true);
       setError(null);
       try {
         const response = await axios.get(
-          `http://localhost:8000/category-product/${clickedCategory.name}/`,
+          `http://localhost:8000/category-product/${categoryName}/`,
         );
         setProductList(response.data);
       } catch (error) {
@@ -40,7 +41,7 @@ const Product = () => {
     };
 
     fetchData();
-  }, [clickedCategory]);
+  }, [categoryName]);
 
   //filter price range from this function
   const [priceRange, setPriceRange] = useState([0, 0]);
@@ -50,11 +51,11 @@ const Product = () => {
     e.preventDefault();
     if (priceRange[0] >= 0 && priceRange[1] >= 0) {
       setLoading(true);
-      console.log("clickedCategory", clickedCategory.name);
+      console.log("clickedCategory", categoryName.name);
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/p/?text=${clickedCategory.name}&minp=${priceRange[0]}&maxp=${priceRange[1]}`,
+          `http://localhost:8000/p/?text=${categoryName.name}&minp=${priceRange[0]}&maxp=${priceRange[1]}`,
         );
         console.log("response.data", response.data);
         setProductList(response.data);
@@ -99,7 +100,7 @@ const Product = () => {
         </h3>
         <div className="flex justify-between items-center">
           <Typography variant="subtitle2" className="text-gray-700">
-            ${item.price}
+            NPR {item.price}
           </Typography>
           <button className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-600">
             View Details

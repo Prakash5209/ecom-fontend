@@ -66,7 +66,7 @@ function SearchProduct() {
         </h3>
         <div className="flex justify-between items-center">
           <Typography variant="subtitle2" className="text-gray-700">
-            ${item.price}
+            NPR {item.price}
           </Typography>
           <button className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-600">
             View Details

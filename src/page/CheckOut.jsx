@@ -334,7 +334,7 @@ const CheckOut = () => {
                   </Typography>
                 </div>
                 <Typography variant="body1">
-                  nrp{(item.product.price * item.quantity).toFixed(2)}
+                  NPR {(item.product.price * item.quantity).toFixed(2)}
                 </Typography>
               </div>
             ))}
@@ -346,7 +346,7 @@ const CheckOut = () => {
                 Total
               </Typography>
               <Typography variant="h6" className="font-bold">
-                nrp{calculateTotal()}
+                NPR {calculateTotal()}
               </Typography>
             </div>
 

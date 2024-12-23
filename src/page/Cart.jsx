@@ -115,7 +115,7 @@ function Cart() {
               Shipping Information
             </h3>
             <ul className="space-y-3 text-gray-700">
-              <li>• Free shipping on orders over NRP 5000</li>
+              <li>• Free shipping on orders over NPR 5000</li>
               <li>• Estimated delivery: 3-5 business days</li>
               <li>• Tracking available for all orders</li>
               <li>• International shipping options available</li>
@@ -153,8 +153,8 @@ function Cart() {
                 Total Quantity:{" "}
                 {items.reduce((sum, item) => sum + item.quantity, 0)}
               </p>
-              <p>Subtotal: ${Number(totalPrice).toFixed(2)}</p>
-              <p>Estimated Tax: ${Number(totalPrice * 0.08).toFixed(2)}</p>
+              <p>Subtotal: NPR {Number(totalPrice).toFixed(2)}</p>
+              <p>Estimated Tax: NPR {Number(totalPrice * 0.08).toFixed(2)}</p>
             </div>
           </div>
         );
@@ -202,7 +202,7 @@ function Cart() {
               {/* Price */}
               <div>
                 <p className="text-gray-700 font-medium">
-                  ${Number(item.product.price).toFixed(2)}
+                  NPR {Number(item.product.price).toFixed(2)}
                 </p>
               </div>
 
@@ -241,7 +241,7 @@ function Cart() {
               {/* Total Price */}
               <div>
                 <p className="font-semibold text-gray-800">
-                  ${Number(item.product.price * item.quantity).toFixed(2)}
+                  NPR {Number(item.product.price * item.quantity).toFixed(2)}
                 </p>
               </div>
 
@@ -276,7 +276,7 @@ function Cart() {
               </div>
               <div className="flex justify-between items-center text-gray-800 font-bold text-lg border-t pt-4">
                 <span>Total Price:</span>
-                <span>${Number(totalPrice).toFixed(2)}</span>
+                <span>NPR {Number(totalPrice).toFixed(2)}</span>
               </div>
               <button
                 onClick={gotoNavigate}
