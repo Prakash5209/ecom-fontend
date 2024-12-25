@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -69,6 +69,28 @@ export default function Navbar() {
   // authentication key
   const auth = sessionStorage.getItem("sown_access");
 
+  // authenticated username ------------------------------
+  // usestate to store loggedin info
+  const [authenticateduserInfo, setAuthenticateduserInfo] = useState([]);
+
+  useEffect(() => {
+    const profile = async () => {
+      const response = await axios.get(
+        "http://localhost:8000/account/userInfo/",
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("sown_access")}`,
+          },
+        },
+      );
+      setAuthenticateduserInfo(response.data.username);
+      console.log("response.data", response.data);
+    };
+    profile();
+  }, []);
+
+  console.log("authenticateduserInfo", authenticateduserInfo);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
@@ -109,7 +131,14 @@ export default function Navbar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem
+        onClick={() => {
+          handleMenuClose();
+          navigate(`profile/${authenticateduserInfo}`);
+        }}
+      >
+        Profile
+      </MenuItem>
       <MenuItem
         onClick={() => {
           handleMenuClose();
